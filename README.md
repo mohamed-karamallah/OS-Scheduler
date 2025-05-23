@@ -51,25 +51,14 @@ This will compile all components and create the necessary executables.
 
 ## Running the Project
 
-1. Start the clock module:
-```bash
-./clk.out
-```
 
-2. Start the process generator:
+
+Start the process generator:
 ```bash
 ./process_generator.out
 ```
 
-3. Start the scheduler:
-```bash
-./scheduler.out
-```
 
-4. Start the process module:
-```bash
-./process.out
-```
 
 ## Project Structure
 
@@ -101,11 +90,6 @@ OS-Scheduler/
 - Time-based scheduling
 - Priority-based process execution
 
-## Requirements
-
-- C compiler (GCC recommended)
-- Make
-- Linux/Unix-like operating system
 
 ## License
 
