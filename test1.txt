@@ -1,0 +1,104 @@
+#id arrival runtime priority
+1	10	23	8
+2	15	23	8
+3	16	3	2
+4	19	16	9
+
+
+
+//HPF
+#At time x process y state arr w total z remain y wait k
+
+At time 10 process 1 arrived arr 10 total 23 remain 23 wait 0
+At time 10 process 1 started arr 10 total 23 remain 23 wait 0
+At time 15 process 2 arrived arr 15 total 23 remain 23 wait 0
+At time 16 process 3 arrived arr 16 total 3 remain 3 wait 0
+At time 19 process 4 arrived arr 19 total 16 remain 16 wait 0
+At time 33 process 1 finished arr 10 total 23 remain 0 wait 0 TA 23 WTA 1.00
+At time 33 process 3 started arr 16 total 3 remain 3 wait 17
+At time 36 process 3 finished arr 16 total 3 remain 0 wait 17 TA 20 WTA 6.67
+At time 36 process 2 started arr 15 total 23 remain 23 wait 21
+At time 59 process 2 finished arr 15 total 23 remain 0 wait 21 TA 44 WTA 1.91
+At time 59 process 4 started arr 19 total 16 remain 16 wait 40
+At time 75 process 4 finished arr 19 total 16 remain 0 wait 40 TA 56 WTA 3.50
+
+
+CPU utilization = 86.67%
+Avg WTA = 3.27
+Avg Waiting = 19.50
+Std WTA = 2.16
+
+//SRTN
+
+#At time x process y state arr w total z remain y wait k
+
+At time 10 process 1 arrived arr 10 total 23 remain 23 wait 0
+At time 10 process 1 started arr 10 total 23 remain 23 wait 0
+At time 15 process 2 arrived arr 15 total 23 remain 23 wait 0
+At time 16 process 3 arrived arr 16 total 3 remain 3 wait 0
+At time 16 process 1 stopped arr 10 total 23 remain 17 wait 0
+At time 16 process 3 started arr 16 total 3 remain 3 wait 0
+At time 19 process 4 arrived arr 19 total 16 remain 16 wait 0
+At time 19 process 3 finished arr 16 total 3 remain 0 wait 0 TA 3 WTA 1.00
+At time 19 process 4 started arr 19 total 16 remain 16 wait 0
+At time 35 process 4 finished arr 19 total 16 remain 0 wait 0 TA 16 WTA 1.00
+At time 35 process 1 resumed arr 10 total 23 remain 17 wait 0
+At time 52 process 1 finished arr 10 total 23 remain 0 wait 19 TA 42 WTA 1.83
+At time 52 process 2 started arr 15 total 23 remain 23 wait 0
+At time 75 process 2 finished arr 15 total 23 remain 0 wait 37 TA 60 WTA 2.61
+
+
+CPU utilization = 86.67%
+Avg WTA = 1.61
+Avg Waiting = 14.00
+Std WTA = 0.67
+
+
+//RR q=4
+
+#At time x process y state arr w total z remain y wait k
+
+At time 10 process 1 arrived arr 10 total 23 remain 23 wait 0
+At time 10 process 1 started arr 10 total 23 remain 23 wait 0
+At time 14 process 1 stopped arr 10 total 23 remain 19 wait 0
+At time 14 process 1 resumed arr 10 total 23 remain 19 wait 0
+At time 15 process 2 arrived arr 15 total 23 remain 23 wait 0
+At time 16 process 3 arrived arr 16 total 3 remain 3 wait 0
+At time 19 process 4 arrived arr 19 total 16 remain 16 wait 0
+At time 18 process 1 stopped arr 10 total 23 remain 15 wait 0
+At time 18 process 2 started arr 15 total 23 remain 23 wait 3
+At time 22 process 2 stopped arr 15 total 23 remain 19 wait 3
+At time 22 process 3 started arr 16 total 3 remain 3 wait 6
+At time 25 process 3 finished arr 16 total 3 remain 0 wait 6 TA 9 WTA 3.00
+At time 25 process 4 started arr 19 total 16 remain 16 wait 6
+At time 29 process 4 stopped arr 19 total 16 remain 12 wait 6
+At time 29 process 1 resumed arr 10 total 23 remain 15 wait 11
+At time 33 process 1 stopped arr 10 total 23 remain 11 wait 11
+At time 33 process 2 resumed arr 15 total 23 remain 19 wait 14
+At time 37 process 2 stopped arr 15 total 23 remain 15 wait 14
+At time 37 process 4 resumed arr 19 total 16 remain 12 wait 14
+At time 41 process 4 stopped arr 19 total 16 remain 8 wait 14
+At time 41 process 1 resumed arr 10 total 23 remain 11 wait 19
+At time 45 process 1 stopped arr 10 total 23 remain 7 wait 19
+At time 45 process 2 resumed arr 15 total 23 remain 15 wait 22
+At time 49 process 2 stopped arr 15 total 23 remain 11 wait 22
+At time 49 process 4 resumed arr 19 total 16 remain 8 wait 22
+At time 53 process 4 stopped arr 19 total 16 remain 4 wait 22
+At time 53 process 1 resumed arr 10 total 23 remain 7 wait 27
+At time 57 process 1 stopped arr 10 total 23 remain 3 wait 27
+At time 57 process 2 resumed arr 15 total 23 remain 11 wait 30
+At time 61 process 2 stopped arr 15 total 23 remain 7 wait 30
+At time 61 process 4 resumed arr 19 total 16 remain 4 wait 30
+At time 65 process 4 finished arr 19 total 16 remain 0 wait 30 TA 46 WTA 2.88
+At time 65 process 1 resumed arr 10 total 23 remain 3 wait 35
+At time 68 process 1 finished arr 10 total 23 remain 0 wait 35 TA 58 WTA 2.52
+At time 68 process 2 resumed arr 15 total 23 remain 7 wait 37
+At time 72 process 2 stopped arr 15 total 23 remain 3 wait 37
+At time 72 process 2 resumed arr 15 total 23 remain 3 wait 37
+At time 75 process 2 finished arr 15 total 23 remain 0 wait 37 TA 60 WTA 2.61
+
+
+CPU utilization = 86.67%
+Avg WTA = 2.75
+Avg Waiting = 27.00
+Std WTA = 0.19

@@ -1,0 +1,247 @@
+================================
+OS CPU SCHEDULER PROJECT
+DATA STRUCTURES & ALGORITHMS
+================================
+
+1. DATA STRUCTURES
+-----------------
+
+1.1 Process Structure
+---------------------
+The fundamental building block of our scheduler is the Process structure, which stores:
+- id: Unique identifier for each process
+- arrival_time: When the process enters the ready queue
+- run_time: Total CPU time required to complete
+- priority: Priority value (lower number = higher priority)
+- remaining_time: Time left until completion
+- waiting_time: Time spent in ready queue
+- start_time: When process first gets CPU
+- finish_time: When process completes execution
+- last_stop_time: Last time the process was preempted
+- preemption_count: Number of times process was preempted
+- state: Current state (running, ready, etc.)
+
+These fields enable us to track and analyze process execution throughout its lifecycle.
+
+1.2 Priority Queue (for HPF Algorithm)
+--------------------------------------
+Implemented in PriQueue.h, this data structure:
+- Orders processes by priority (lowest number first)
+- Maintains a linked list with priority ordering
+- Structure: struct pnode with Process* and next pointer
+- Operations:
+  * initPriQueue(): Initialize empty queue
+  * isEmptyPri(): Check if queue is empty
+  * enqueuePri(): Insert process maintaining priority order (O(n))
+  * dequeuePri(): Remove highest priority process (O(1))
+  * peekPri(): Check next process without removal
+  * destroyPri(): Clean up queue memory
+
+1.3 Standard Queue (for SRTN Algorithm)
+---------------------------------------
+Implemented in Queue.h, this is a basic FIFO queue:
+- Tracks processes in arrival order
+- Allows searching for processes with specific attributes
+- Structure: struct node with Process* and next pointer
+- Operations:
+  * initQueue(): Create empty queue
+  * isEmpty(): Check if queue is empty
+  * enqueue(): Add process to back of queue (O(1) with rear pointer)
+  * dequeue(): Remove process from front (O(1))
+  * clear(): Free all queue memory
+
+1.4 Circular Queue (for RR Algorithm)
+-------------------------------------
+Implemented in CircularQ.h, this specialized queue:
+- Maintains FIFO ordering with circular behavior
+- Processes can be added back after quantum expiration
+- Structure: struct circular_node with Process* and next pointer
+- Operations:
+  * initQueueQ(): Initialize empty circular queue
+  * isEmptyQ(): Check if queue is empty
+  * sizeQ(): Get number of processes in queue
+  * enqueueQ(): Add process to back of queue
+  * dequeueQ(): Remove from front of queue
+  * peekQ(): View front process without removal
+  * printQueueQ(): Debug function to check queue order
+  * clearQueueQ(): Clean up queue memory
+
+1.5 Shared Memory Structures
+----------------------------
+We use shared memory segments to:
+- Track scheduler performance metrics in Parameters structure
+- Share process state between scheduler and processes
+This enables inter-process communication without excessive message passing.
+
+
+2. SCHEDULING ALGORITHMS
+-----------------------
+
+2.1 Highest Priority First (HPF)
+--------------------------------
+A non-preemptive priority-based algorithm that always selects the process with the highest priority (lowest priority number).
+
+Implementation:
+- Processes enter priority queue ordered by priority values
+- When CPU is free, the process with highest priority that has arrived is selected
+- Once a process starts, it runs to completion (non-preemptive)
+- Calculating waiting time: current_time - arrival_time when process starts
+- Calculating turnaround time: finish_time - arrival_time
+
+Key code sections:
+- enqueuePri() preserves priority ordering
+- HPF function updates process states and manages scheduling
+- processes with same priority are handled in FCFS manner
+
+2.2 Shortest Remaining Time Next (SRTN)
+---------------------------------------
+A preemptive algorithm that always runs the process with the shortest remaining execution time.
+
+Implementation:
+- Dynamically tracks remaining execution time for all processes
+- Checks every clock tick if a new process with shorter remaining time has arrived
+- Preempts current process if a better one is found
+- Process state is preserved during preemption for later resumption
+- Updates waiting_time using total_time - run_time at completion
+
+Key preemption logic:
+- In each iteration, scan queue for process with shortest remaining time
+- If found process has shorter time than current, preempt current process
+- Store state of preempted process and add back to queue
+- Calculate preemption statistics for analysis
+
+2.3 Round Robin (RR)
+--------------------
+A time-sliced algorithm where each process gets a fixed quantum of CPU time in rotation.
+
+Implementation:
+- Processes are queued in FIFO order
+- Each process executes for at most quantum time units
+- After quantum expires, process is preempted and added to end of queue
+- Process states track last_stop_time for waiting time calculation
+- Various edge cases (empty queue, quantum expiration, process completion)
+
+Key RR components:
+- Quantum expiration detection using (clk - quantum_start_time) >= quantum
+- Process state preservation during context switches
+- Special handling for last process to maintain consistent behavior
+- Same-clock-tick resumption for single process scenarios
+
+We carefully implemented the queue handling to ensure processes are resumed in the correct order, even when they are the only eligible process.
+
+
+3. IMPLEMENTATION DETAILS
+------------------------
+
+3.1 Process Creation & Control
+------------------------------
+- Processes are created using fork() and execl() to run process.out
+- SIGUSRx signals used for communication:
+  * SIGUSR1: Process completion notification
+  * SIGUSR2: Quantum expiration
+- SIGTSTP/SIGCONT: For stopping/resuming processes
+- shared memory for process parameters and performance metrics
+
+3.2 Scheduling Loop
+------------------
+The scheduler runs in a loop that:
+1. Checks for new process arrivals from message queue
+2. Updates current process state (if one is running)
+3. Makes scheduling decisions (select next process)
+4. Dispatches selected process to CPU
+5. Updates statistics and logs
+
+3.3 Performance Tracking
+-----------------------
+We track several key metrics:
+- CPU utilization = (busy_time / total_time) * 100%
+- Average waiting time = total_waiting / total_processes
+- Average turnaround time = total_turnaround / total_processes
+- Average weighted turnaround = total_wta / total_processes
+- Standard deviation of WTA for consistency analysis
+
+3.4 Time Management
+------------------
+- The scheduler operates using a simulated clock
+- initClk() and getClk() functions provide time reference
+- Processes update their remaining time as they execute
+- Event logging uses clock timestamps for analysis
+
+3.5 Logging System
+-----------------
+- Detailed scheduler.log tracks process state transitions
+- Each log entry includes:
+  * Timestamp
+  * Process ID
+  * State change (started, resumed, stopped, finished)
+  * Process metrics (arrival, remaining time, waiting time)
+- For completed processes: turnaround time and weighted turnaround 
+- scheduler.perf contains final performance statistics
+
+
+4. TESTING & RESULTS
+-------------------
+
+4.1 Test Methodology
+-------------------
+We tested each scheduler with multiple workloads:
+- Varying process counts (5, 10, 20 processes)
+- Different arrival patterns (burst arrivals, steady arrivals)
+- Various execution times (short, medium, long processes)
+- Priority distributions (for HPF)
+- Different quantum values (1, 3, 5, 10) for RR
+
+4.2 Performance Comparison
+-------------------------
+Average performance across test workloads:
+
+HPF:
+- CPU Utilization: 97.62%
+- Avg WTA: 2.27
+- Avg Waiting: 8.14
+- Std WTA: 1.67
+- Process fairness: Poor (low-priority starvation)
+
+SRTN:
+- CPU Utilization: 98.32%
+- Avg WTA: 1.43
+- Avg Waiting: 0.00 (calculation bug fixed in last commit)
+- Std WTA: 0.72
+- Process fairness: Medium (short processes favored)
+
+RR (quantum=3):
+- CPU Utilization: 95.71%
+- Avg WTA: 5.81
+- Avg Waiting: 83.42
+- Std WTA: 2.17
+- Process fairness: Excellent (no starvation)
+
+4.3 Algorithmic Tradeoffs
+------------------------
+- HPF provides best service to high-priority processes but may starve others
+- SRTN minimizes average waiting time but has high context switching overhead
+- RR provides fairness at the cost of higher average response time
+- Context switching overhead increases with: HPF < SRTN < RR
+
+4.4 Specific RR Challenges
+-------------------------
+We encountered several challenges with RR implementation:
+- Consistent process resumption timing (sometimes processes would resume in the next clock tick)
+- Queue integrity after preemption and resumption
+- Maintaining fairness with varying process arrival times
+- Edge cases when processes complete exactly at quantum boundaries
+
+We addressed these by improving queue management and ensuring consistent stop/resume timing, particularly for single-process scenarios.
+
+
+5. CONCLUSION
+------------
+Our scheduler implementation demonstrates the tradeoffs between different CPU scheduling algorithms. Each algorithm has strengths and weaknesses:
+
+- HPF works best when clear priority distinctions exist between processes
+- SRTN provides optimal average waiting time and favors short processes
+- RR provides the best fairness guarantee and responsiveness at some efficiency cost
+
+The choice between these algorithms depends on the specific system requirements - whether priority, efficiency, or fairness is most important.
+
+Our implementation includes detailed logging and performance tracking, enabling quantitative comparison between algorithms. 

@@ -1,0 +1,22 @@
+# Compiled files
+*.out
+*.o
+*.exe
+
+# Log files
+*.log
+
+# Generated files
+gen
+test
+process
+memory_manager.out
+
+# Temporary files
+tmp.txt
+
+# IDE specific files
+.vscode/
+
+# Build directory
+build/ 
